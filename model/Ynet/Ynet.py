@@ -482,21 +482,15 @@ class ADCB(nn.Module):
 
     def forward(self, x):
 
-        # xs = self.conv_p1(xs)
         x1 = self.sc(x)
-        # print('conv1 output size:', x1.size())
         x1 = self.bn1(x1)
         x1 = self.relu0(x1)
-        # x2 = self.sc(x1)
-        # # print('conv2 output size:', x2.size())
 
         x3 = self.dcb(x1)
-        # x3 = self.conv1(x3)
-        # x3 = self.relu2(x3)
+
         x5 = self.m_conv_tail(x3+x)
         x5 = F.interpolate(x5, size=x.size()[2:], mode='nearest')
         x5_1 = x + x5
-        # print('x5_1 output size:', x5_1.size())
         return x5_1
 
 
@@ -517,7 +511,7 @@ class MAB(nn.Module):
         self.conv_f3 = nn.Conv2d(in_channels + sobel_ch + mid_channels, mid_channels, kernel_size=3, stride=1, padding=1)
 
         self.c1 = nn.Conv2d(mid_channels, mid_channels, 3, 1, 1, 1)
-        # self.c1 = DepthwiseSeparableConv(mid_channels, mid_channels)
+
         self.c2 = nn.Conv2d(mid_channels, mid_channels, 3, 1, 3, 3)
         self.c3 = nn.Conv2d(mid_channels, mid_channels, 3, 1, 5, 5)
         self.fusion = nn.Conv2d(mid_channels * 4, in_channels, 1, 1, 0)
@@ -577,7 +571,6 @@ class YNet(nn.Module):
         self.up = Up(nc, bias)
 
     def forward(self, x):
-        # y1 = self.conv_p1(xs)
         y1 = self.conv_head(x)
 
         y2 = self.mab(y1)
@@ -614,22 +607,3 @@ class YNet(nn.Module):
 
         Z = x - z
         return Z
-
-def main():
-    # 创建一个Net实例
-    net = YNet()
-
-    # 打印模型的结构
-    print(net)
-
-    # 随机生成一个输入张量，用于测试
-    input_tensor = torch.randn(1, 1, 256, 256)  # 假设输入尺寸为 (batch_size, in_channels, height, width)
-
-    # 使用模型进行前向传播
-    output_tensor = net(input_tensor)
-
-    # 打印输出张量的形状
-    print("Output shape:", output_tensor.shape)
-
-if __name__ == "__main__":
-    main()
